@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace BradieTilley\Snowflakes\IdentifierResolvers;
 
 use BradieTilley\Snowflake\IdentifierResolvers\IdentifierResolver;
@@ -35,6 +37,7 @@ class SequentialIdentifierResolver implements IdentifierResolver
 
     public function identifier(int $time, int $sequence, ?string $group = null): int
     {
+        $group ??= '';
         $count = $this->models[$group] ??= self::START_ID;
         $count++;
         $this->models[$group] = $count;

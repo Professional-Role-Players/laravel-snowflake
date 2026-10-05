@@ -10,6 +10,10 @@ jobs:
         os: [ubuntu-latest, macos-latest]
         php: ['8.4']
         dependency-version: [prefer-lowest, prefer-stable]
+        include:
+          - os: ubuntu-latest
+            php: '8.5'
+            dependency-version: prefer-stable
 
     name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
 
