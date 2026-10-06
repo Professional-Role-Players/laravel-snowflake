@@ -7,15 +7,46 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
-        php: ['8.4']
-        dependency-version: [prefer-lowest, prefer-stable]
+        # Laravel 11 remains supported by composer.json, but current security
+        # advisories block a fresh install. Keep Composer security blocking enabled.
         include:
           - os: ubuntu-latest
+            php: '8.4'
+            laravel: '^12.1'
+            testbench: '^10.0'
+            dependency-version: prefer-lowest
+          - os: macos-latest
+            php: '8.4'
+            laravel: '^12.1'
+            testbench: '^10.0'
+            dependency-version: prefer-lowest
+          - os: ubuntu-latest
+            php: '8.4'
+            laravel: '^12.1'
+            testbench: '^10.0'
+            dependency-version: prefer-stable
+          - os: ubuntu-latest
+            php: '8.4'
+            laravel: '^13.0'
+            testbench: '^11.0'
+            dependency-version: prefer-lowest
+          - os: ubuntu-latest
+            php: '8.4'
+            laravel: '^13.0'
+            testbench: '^11.0'
+            dependency-version: prefer-stable
+          - os: macos-latest
+            php: '8.4'
+            laravel: '^13.0'
+            testbench: '^11.0'
+            dependency-version: prefer-stable
+          - os: ubuntu-latest
             php: '8.5'
+            laravel: '^13.0'
+            testbench: '^11.0'
             dependency-version: prefer-stable
 
-    name: PHP ${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
+    name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - Testbench ${{ matrix.testbench }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
 
     steps:
     - name: Checkout
@@ -34,7 +65,13 @@ jobs:
         echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
     - name: Install PHP dependencies
-      run: composer update --${{ matrix.dependency-version }} --no-interaction --no-progress --ansi
+      # Lowest means the lowest currently installable safe dependency set;
+      # Composer advisories can exclude the literal declared version floor.
+      run: >-
+        composer update
+        --with="laravel/framework:${{ matrix.laravel }}"
+        --with="orchestra/testbench:${{ matrix.testbench }}"
+        --${{ matrix.dependency-version }} --no-interaction --no-progress --ansi
 
     - name: Unit Tests
       run: vendor/bin/pest --colors=always
